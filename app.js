@@ -1,4 +1,8 @@
-const { calculateScrollMetrics, createPlaybackController } = window.PromptEngine;
+const {
+  calculateScrollMetrics,
+  createPlaybackController,
+  getPreviewClickAction,
+} = window.PromptEngine;
 const {
   applyStyleRange,
   clearStyleRange,
@@ -270,6 +274,21 @@ function applyOffset(offset) {
   elements.promptTrack.dataset.offset = String(offset);
 }
 
+function syncPreviewAction(playbackState) {
+  const labels = {
+    idle: "开始播放",
+    playing: "暂停播放",
+    paused: "继续播放",
+    finished: "重新播放",
+  };
+
+  elements.previewStage.dataset.playbackState = playbackState;
+  elements.previewStage.setAttribute(
+    "aria-label",
+    labels[playbackState] ?? labels.idle,
+  );
+}
+
 function updateTransport(snapshot = state.playback?.snapshot()) {
   const playbackState = snapshot?.state ?? "idle";
   const duration = getDurationSeconds();
@@ -296,6 +315,7 @@ function updateTransport(snapshot = state.playback?.snapshot()) {
 
   elements.playbackState.textContent = stateLabels[playbackState];
   elements.playbackState.dataset.state = playbackState;
+  syncPreviewAction(playbackState);
   elements.statusText.textContent = statusLabels[playbackState];
   elements.elapsedTime.textContent = formatTime(elapsed);
   elements.totalTime.textContent = formatTime(duration);
@@ -433,6 +453,30 @@ function pausePlayback() {
 
 function resetPlayback() {
   measureAndReset();
+}
+
+function handlePreviewToggle() {
+  const playbackState = state.playback?.snapshot().state ?? "idle";
+  const action = getPreviewClickAction(
+    playbackState,
+    Boolean(state.settings.script.trim()),
+  );
+
+  if (action === "none") {
+    elements.scriptInput.focus();
+    return;
+  }
+
+  if (action === "pause") {
+    pausePlayback();
+    return;
+  }
+
+  if (action === "restart") {
+    resetPlayback();
+  }
+
+  startPlayback();
 }
 
 function updateDurationFromInput() {
@@ -581,6 +625,13 @@ elements.startButton.addEventListener("click", startPlayback);
 elements.pauseButton.addEventListener("click", pausePlayback);
 elements.resetButton.addEventListener("click", resetPlayback);
 elements.fullscreenButton.addEventListener("click", toggleFullscreen);
+elements.previewStage.addEventListener("click", handlePreviewToggle);
+elements.previewStage.addEventListener("keydown", (event) => {
+  if (event.key !== " " && event.key !== "Enter") return;
+
+  event.preventDefault();
+  handlePreviewToggle();
+});
 document.addEventListener("fullscreenchange", syncFullscreenButton);
 
 const resizeObserver = new ResizeObserver(() => {

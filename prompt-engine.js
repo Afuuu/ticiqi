@@ -86,8 +86,16 @@
     };
   }
 
+  function getPreviewClickAction(state, hasScript) {
+    if (!hasScript) return "none";
+    if (state === "playing") return "pause";
+    if (state === "finished") return "restart";
+    return "start";
+  }
+
   return {
     calculateScrollMetrics,
     createPlaybackController,
+    getPreviewClickAction,
   };
 });

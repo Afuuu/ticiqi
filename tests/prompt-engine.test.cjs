@@ -4,6 +4,7 @@ const test = require("node:test");
 const {
   calculateScrollMetrics,
   createPlaybackController,
+  getPreviewClickAction,
 } = require("../prompt-engine.js");
 
 test("calculates distance from first-line center to last-line center", () => {
@@ -93,4 +94,12 @@ test("zero-distance playback finishes immediately and stays stable", () => {
     elapsedSeconds: 0,
     offset: 0,
   });
+});
+
+test("preview clicks map to the expected playback action", () => {
+  assert.equal(getPreviewClickAction("idle", true), "start");
+  assert.equal(getPreviewClickAction("paused", true), "start");
+  assert.equal(getPreviewClickAction("playing", true), "pause");
+  assert.equal(getPreviewClickAction("finished", true), "restart");
+  assert.equal(getPreviewClickAction("idle", false), "none");
 });

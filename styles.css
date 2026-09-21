@@ -610,9 +610,16 @@ input:disabled {
   height: 100%;
   min-height: 500px;
   overflow: hidden;
+  cursor: pointer;
   background:
     radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.025), transparent 48%),
     var(--preview-bg);
+  user-select: none;
+}
+
+.preview-stage:focus-visible {
+  outline: 3px solid rgba(101, 211, 165, 0.9);
+  outline-offset: -4px;
 }
 
 .center-guide {
