@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="轻量级网页口播提词器，支持匀速滚动、暂停、重置和全屏提词。"
+    />
+    <title>轻提词</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="app-brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <div>
+            <h1>轻提词</h1>
+            <p>口播稿件匀速提词</p>
+          </div>
+        </div>
+        <span id="saveStatus" class="save-status" role="status">本地自动保存</span>
+      </header>
+
+      <main class="workspace">
+        <section class="editor-panel" aria-labelledby="editorTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="section-kicker">控制台</p>
+              <h2 id="editorTitle">稿件与设置</h2>
+            </div>
+            <button id="clearButton" class="button button-quiet" type="button">
+              清空稿件
+            </button>
+          </div>
+
+          <div class="script-field">
+            <div class="field-heading">
+              <label for="scriptInput">口播稿件</label>
+              <span id="characterCount">0 字</span>
+            </div>
+            <textarea
+              id="scriptInput"
+              spellcheck="false"
+              placeholder="在这里粘贴或输入口播稿件"
+            ></textarea>
+          </div>
+
+          <div class="selection-tools" aria-label="选中文字样式">
+            <div class="selection-tools-heading">
+              <span>选中文字样式</span>
+              <span id="selectionSummary" class="selection-summary">未选择</span>
+            </div>
+            <div class="selection-controls">
+              <div class="selection-color-field">
+                <label for="selectionColorInput">颜色</label>
+                <div class="selection-color-control">
+                  <input
+                    id="selectionColorInput"
+                    type="color"
+                    value="#ffffff"
+                    disabled
+                    aria-label="选中文字颜色"
+                  />
+                  <span id="selectionColorValue">--</span>
+                </div>
+              </div>
+              <div class="selection-size-field">
+                <div class="field-heading">
+                  <label for="selectionFontSizeInput">字号</label>
+                  <output id="selectionFontSizeValue" for="selectionFontSizeInput">
+                    --
+                  </output>
+                </div>
+                <input
+                  id="selectionFontSizeInput"
+                  class="range-input range-input-compact"
+                  type="range"
+                  min="24"
+                  max="120"
+                  step="2"
+                  value="56"
+                  disabled
+                />
+              </div>
+              <div class="selection-actions">
+                <button
+                  id="selectAllButton"
+                  class="button button-quiet"
+                  type="button"
+                  disabled
+                >
+                  全选
+                </button>
+                <button
+                  id="clearSelectionStyleButton"
+                  class="button button-quiet"
+                  type="button"
+                  disabled
+                >
+                  恢复默认
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings" aria-label="提词样式设置">
+            <div class="setting-block">
+              <div class="field-heading">
+                <label for="fontSizeInput">默认字号</label>
+                <output id="fontSizeValue" for="fontSizeInput">56 px</output>
+              </div>
+              <input
+                id="fontSizeInput"
+                class="range-input"
+                type="range"
+                min="24"
+                max="120"
+                step="2"
+                value="56"
+              />
+              <div class="range-scale" aria-hidden="true">
+                <span>24</span>
+                <span>120</span>
+              </div>
+            </div>
+
+            <div class="compact-settings">
+              <div class="compact-field">
+                <label for="textColorInput">默认文字颜色</label>
+                <div class="color-control">
+                  <input
+                    id="textColorInput"
+                    type="color"
+                    value="#ffffff"
+                    aria-label="文字颜色"
+                  />
+                  <span id="textColorValue">#FFFFFF</span>
+                </div>
+              </div>
+
+              <div class="compact-field">
+                <label for="backgroundColorInput">背景颜色</label>
+                <div class="color-control">
+                  <input
+                    id="backgroundColorInput"
+                    type="color"
+                    value="#0e1116"
+                    aria-label="背景颜色"
+                  />
+                  <span id="backgroundColorValue">#0E1116</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="duration-field">
+              <div>
+                <label for="durationInput">总播放时长</label>
+                <p>从第一行到稿件结束</p>
+              </div>
+              <div class="number-control">
+                <input
+                  id="durationInput"
+                  type="number"
+                  min="1"
+                  max="9999"
+                  step="1"
+                  value="180"
+                  inputmode="numeric"
+                />
+                <span>秒</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="editor-note">
+            <span class="note-dot" aria-hidden="true"></span>
+            内容与设置会自动保存在当前浏览器
+          </div>
+        </section>
+
+        <section id="stagePanel" class="stage-panel" aria-labelledby="previewTitle">
+          <div class="panel-heading preview-heading">
+            <div class="preview-title-row">
+              <div>
+                <p class="section-kicker">实时画面</p>
+                <h2 id="previewTitle">提词预览</h2>
+              </div>
+              <span id="playbackState" class="state-pill" data-state="idle">
+                待开始
+              </span>
+            </div>
+            <button
+              id="fullscreenButton"
+              class="button button-outline"
+              type="button"
+            >
+              全屏
+            </button>
+          </div>
+
+          <div id="previewShell" class="preview-shell">
+            <div id="previewStage" class="preview-stage">
+              <div class="center-guide" aria-hidden="true">
+                <span></span>
+              </div>
+              <div id="promptTrack" class="prompt-track">
+                <div id="promptContent" class="prompt-content"></div>
+              </div>
+              <div id="emptyState" class="empty-state">
+                <span aria-hidden="true"></span>
+                <p>等待稿件</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="transport">
+            <div class="progress-area">
+              <div class="progress-labels">
+                <span id="statusText">等待开始</span>
+                <span>
+                  <strong id="elapsedTime">00:00</strong>
+                  <span aria-hidden="true"> / </span>
+                  <span id="totalTime">03:00</span>
+                </span>
+              </div>
+              <div
+                id="progressTrack"
+                class="progress-track"
+                role="progressbar"
+                aria-label="播放进度"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+              >
+                <span id="progressBar"></span>
+              </div>
+            </div>
+
+            <div class="transport-buttons">
+              <button id="startButton" class="button button-primary" type="button">
+                开始
+              </button>
+              <button
+                id="pauseButton"
+                class="button button-secondary"
+                type="button"
+                disabled
+              >
+                暂停
+              </button>
+              <button id="resetButton" class="button button-secondary" type="button">
+                重置
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./style-ranges.js"></script>
+    <script src="./prompt-engine.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
